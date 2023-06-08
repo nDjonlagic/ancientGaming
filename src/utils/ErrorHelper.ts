@@ -6,6 +6,7 @@ export enum ErrorCodes {
   INVALID_BET_AMOUNT = "INVALID_BET_AMOUNT",
   INVALID_CHANCE_RANGE = "INVALID_CHANCE_RANGE",
   INVALID_BET_STATE = "INVALID_BET_STATE",
+  INVALID_BALANCE = "INVALID_BALANCE",
 }
 
 export class ErrorHelper {
@@ -42,5 +43,9 @@ export class ErrorHelper {
       "Bet already confirmed",
       ErrorCodes.INVALID_BET_STATE
     );
+  }
+
+  static invalidBalance(): ApolloError {
+    return new ApolloError("Invalid balance", ErrorCodes.INVALID_BALANCE);
   }
 }

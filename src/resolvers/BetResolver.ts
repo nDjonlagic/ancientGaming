@@ -12,20 +12,20 @@ interface Context {
 @Resolver()
 export class BetResolver {
   @Query(() => Bet)
-  getBet(@Arg("id", () => Int) id: number) {
-    return Bet.findByPk(id);
+  async getBet(@Arg("id", () => Int) id: number): Promise<Bet> {
+    return await Bet.findByPk(id);
   }
 
   @Query(() => [Bet])
-  getBetList() {
-    return Bet.findAll();
+  async getBetList(): Promise<Bet[]> {
+    return await Bet.findAll();
   }
 
   @Query(() => [Bet])
   async getBestBetPerUser(
     @Ctx() context: Context,
     @Arg("limit", () => Int, { nullable: true }) limit?: number
-  ) {
+  ): Promise<Bet[]> {
     const replacements: any = {};
     let limitQuery = "";
 
@@ -63,7 +63,7 @@ export class BetResolver {
     @Arg("betAmount", () => Float) betAmount: number,
     @Arg("chance", () => Float) chance: number,
     @Ctx() context: Context
-  ) {
+  ): Promise<Bet> {
     if (chance <= 0 || chance >= 100) throw ErrorHelper.invalidChanceRange();
 
     const user = await User.findByPk(userId);
@@ -100,7 +100,7 @@ export class BetResolver {
   async confirmBet(
     @Arg("betId", () => Int) betId: number,
     @Ctx() context: Context
-  ) {
+  ): Promise<Bet> {
     return await DatabaseUtils.withTransaction(
       context.sequelize,
       async (transaction) => {
