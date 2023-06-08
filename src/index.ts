@@ -19,7 +19,7 @@ async function main() {
   const server = new ApolloServer({
     schema: await buildSchema({
       resolvers: [UserResolver, BetResolver],
-      validate: false,
+      validate: true,
     }),
     context: ({ req, res }) => ({ req, res, sequelize }),
   });

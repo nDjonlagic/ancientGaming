@@ -4,6 +4,7 @@ import { Bet } from "../models/Bet";
 import { User } from "../models/User";
 import { DatabaseUtils } from "../utils/DatabaseUtils";
 import { ErrorHelper } from "../utils/ErrorHelper";
+import { CreateBetInput } from "../utils/validators/CreateBetInput";
 
 interface Context {
   sequelize: Sequelize;
@@ -59,31 +60,25 @@ export class BetResolver {
 
   @Mutation(() => Bet)
   async createBet(
-    @Arg("userId", () => Int) userId: number,
-    @Arg("betAmount", () => Float) betAmount: number,
-    @Arg("chance", () => Float) chance: number,
+    @Arg("input", () => CreateBetInput) input: CreateBetInput,
     @Ctx() context: Context
   ): Promise<Bet> {
-    if (chance <= 0 || chance >= 100) throw ErrorHelper.invalidChanceRange();
-
-    const user = await User.findByPk(userId);
+    const user = await User.findByPk(input.userId);
     if (!user) throw ErrorHelper.entityNotFound(User.name);
 
-    if (user.balance < betAmount) throw ErrorHelper.insufficientBalance();
-
-    if (betAmount <= 0) throw ErrorHelper.invalidBetAmount();
+    if (user.balance < input.betAmount) throw ErrorHelper.insufficientBalance();
 
     const bet = await DatabaseUtils.withTransaction(
       context.sequelize,
       async (transaction) => {
-        user.balance -= betAmount;
+        user.balance -= input.betAmount;
         await user.save({ transaction });
 
         return await Bet.create(
           {
-            userId,
-            betAmount,
-            chance,
+            userId: input.userId,
+            betAmount: input.betAmount,
+            chance: input.chance,
             confirmed: false, // We set the confirmed field as false initially
             payout: 0,
             win: false,

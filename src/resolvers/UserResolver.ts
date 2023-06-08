@@ -1,6 +1,7 @@
 import { Resolver, Query, Arg, Int, Mutation, Float } from "type-graphql";
 import { User } from "../models/User";
 import { ErrorHelper } from "../utils/ErrorHelper";
+import { CreateUserInput } from "../utils/validators/CreateUserInput";
 
 @Resolver()
 export class UserResolver {
@@ -18,15 +19,8 @@ export class UserResolver {
 
   @Mutation(() => User)
   async createUser(
-    @Arg("name", () => String) name: string,
-    @Arg("balance", () => Float) balance: number
+    @Arg("data", () => CreateUserInput) data: CreateUserInput
   ): Promise<User> {
-    if (balance < 0) throw ErrorHelper.invalidBalance();
-    const user = await User.create({
-      name,
-      balance,
-    });
-
-    return user;
+    return await User.create(data);
   }
 }
